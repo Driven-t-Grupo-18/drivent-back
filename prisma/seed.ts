@@ -32,7 +32,7 @@ async function main() {
       data: {
         name: "Administrador Seed",
         cpf: "13403946770",
-        birthday: "01/01/2000",
+        birthday: new Date("2001-01-01"),
         phone: "(99)12345-6789",
         userId: user.id
         
