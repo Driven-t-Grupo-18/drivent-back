@@ -14,10 +14,78 @@ async function main() {
         endsAt: dayjs().add(21, "days").toDate(),
       },
     });
+
+    
+  }
+  let user = await prisma.user.findFirst();
+  if (!user) {
+    user = await prisma.user.create({
+      data: {
+        email: "admin@admin.com",
+        password: "admin",
+      },
+    });
+  }
+  let enrollment = await prisma.enrollment.findFirst();
+  if (!enrollment) {
+    enrollment = await prisma.enrollment.create({
+      data: {
+        name: "Administrador Seed",
+        cpf: "13403946770",
+        birthday: "01/01/2000",
+        phone: "(99)12345-6789",
+        userId: user.id
+        
+      },
+    });
+  }
+  let ticketType = await prisma.ticketType.findFirst();
+  if (!ticketType) {
+    ticketType = await prisma.ticketType.create({
+      data: {
+        name: "Ticket Type Seed",
+        price: 20000,
+        isRemote: false,
+        includesHotel: true
+      },
+    });
+  }
+  let ticket = await prisma.ticket.findFirst();
+  if (!ticket) {
+    ticket = await prisma.ticket.create({
+      data: {
+        ticketTypeId: ticketType.id,
+        enrollmentId: enrollment.id,
+        status: 'PAID'
+      },
+    });
+  }
+  let hotel = await prisma.hotel.findFirst();
+  if (!hotel) {
+    hotel = await prisma.hotel.create({
+      data: {
+        name: "Hotel Seed",
+        image: "https://assets.hyatt.com/content/dam/hyatt/hyattdam/images/2017/08/29/1013/Grand-Hyatt-Rio-de-Janeiro-P443-Pool.jpg/Grand-Hyatt-Rio-de-Janeiro-P443-Pool.16x9.jpg?imwidth=1920",
+      },
+    });
+  }
+    let room = await prisma.room.findFirst();
+  if (!room) {
+    room = await prisma.room.create({
+      data: {
+        name: "Quarto Seed",
+        capacity: 3,
+        hotelId: hotel.id
+      },
+    });
   }
 
-  console.log({ event });
-}
+  
+
+  console.log({ event, hotel, room, ticket, ticketType, user, enrollment });
+
+  }
+
 
 main()
   .catch((e) => {

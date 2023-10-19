@@ -3,6 +3,12 @@ import httpStatus from 'http-status';
 import { AuthenticatedRequest } from '@/middlewares';
 import { bookingService } from '@/services';
 
+export async function getAllBookings(req: AuthenticatedRequest, res: Response) {
+  const booking = await bookingService.getAll();
+
+  return res.status(httpStatus.OK).send(booking);
+}
+
 export async function getBooking(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
   const booking = await bookingService.getBooking(userId);
