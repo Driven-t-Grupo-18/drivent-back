@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from 'bcrypt'
 import dayjs from "dayjs";
 const prisma = new PrismaClient();
 
@@ -19,10 +20,11 @@ async function main() {
   }
   let user = await prisma.user.findFirst();
   if (!user) {
+    const password = 'admin'
     user = await prisma.user.create({
       data: {
         email: "admin@admin.com",
-        password: "admin",
+        password: await bcrypt.hash(password, 12),
       },
     });
   }
@@ -32,9 +34,24 @@ async function main() {
       data: {
         name: "Administrador Seed",
         cpf: "13403946770",
-        birthday: "01/01/2000",
+        birthday: new Date('2000-01-01'),
         phone: "(99)12345-6789",
         userId: user.id
+        
+      },
+    });
+  }
+  let address = await prisma.address.findFirst({where: {cep: "22743670"}});
+  if (!address) {
+    address = await prisma.address.create({
+      data: {
+        cep: "22743670",
+        street: "rua dos bobos",
+        city: 'cidade natal',
+        state: 'RJ',
+        number: '0',
+        neighborhood: 'alguma',
+        enrollmentId: enrollment.id
         
       },
     });
@@ -73,7 +90,7 @@ async function main() {
   if (!room) {
     room = await prisma.room.create({
       data: {
-        name: "Quarto Seed",
+        name: "101",
         capacity: 3,
         hotelId: hotel.id
       },
