@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import dayjs from "dayjs";
 const prisma = new PrismaClient();
+import bcrypt from "bcrypt";
 
 async function main() {
   let event = await prisma.event.findFirst();
@@ -19,10 +20,11 @@ async function main() {
   }
   let user = await prisma.user.findFirst();
   if (!user) {
+    const password = "admin"
     user = await prisma.user.create({
       data: {
         email: "admin@admin.com",
-        password: "admin",
+        password: await bcrypt.hash(password, 12),
       },
     });
   }
@@ -39,14 +41,50 @@ async function main() {
       },
     });
   }
-  let ticketType = await prisma.ticketType.findFirst();
-  if (!ticketType) {
-    ticketType = await prisma.ticketType.create({
+  let address = await prisma.address.findFirst({where: {cep: "22743670"}});
+  if (!address) {
+    address = await prisma.address.create({
       data: {
-        name: "Ticket Type Seed",
+        cep: "22743670",
+        street: "rua dos bobos",
+        city: 'cidade natal',
+        state: 'RJ',
+        number: '0',
+        neighborhood: 'alguma',
+        enrollmentId: enrollment.id
+      },
+    });
+  }
+  let ticketTypeA = await prisma.ticketType.findFirst({where: {name:"Ticket com Hotel"}});
+  if (!ticketTypeA) {
+    ticketTypeA = await prisma.ticketType.create({
+      data: {
+        name: "Ticket com Hotel",
         price: 20000,
         isRemote: false,
         includesHotel: true
+      },
+    });
+  }
+  let ticketTypeB = await prisma.ticketType.findFirst({where: {name:"Ticket Sem Hotel"}});
+  if (!ticketTypeB) {
+    ticketTypeB = await prisma.ticketType.create({
+      data: {
+        name: "Ticket Sem Hotel",
+        price: 10000,
+        isRemote: false,
+        includesHotel: false
+      },
+    });
+  }
+  let ticketTypeC = await prisma.ticketType.findFirst({where: {name:"Ticket Online"}});
+  if (!ticketTypeC) {
+    ticketTypeC = await prisma.ticketType.create({
+      data: {
+        name: "Ticket Online",
+        price: 5000,
+        isRemote: true,
+        includesHotel: false
       },
     });
   }
@@ -54,7 +92,7 @@ async function main() {
   if (!ticket) {
     ticket = await prisma.ticket.create({
       data: {
-        ticketTypeId: ticketType.id,
+        ticketTypeId: ticketTypeA.id,
         enrollmentId: enrollment.id,
         status: 'PAID'
       },
@@ -73,7 +111,7 @@ async function main() {
   if (!room) {
     room = await prisma.room.create({
       data: {
-        name: "Quarto Seed",
+        name: "101",
         capacity: 3,
         hotelId: hotel.id
       },
@@ -82,7 +120,7 @@ async function main() {
 
   
 
-  console.log({ event, hotel, room, ticket, ticketType, user, enrollment });
+  console.log({ event, hotel, room, ticket, ticketTypeA, ticketTypeB, ticketTypeC, user, enrollment });
 
   }
 
