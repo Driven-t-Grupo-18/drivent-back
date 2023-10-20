@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
-import bcrypt from 'bcrypt'
 import dayjs from "dayjs";
 const prisma = new PrismaClient();
+import bcrypt from "bcrypt";
 
 async function main() {
   let event = await prisma.event.findFirst();
@@ -18,30 +18,53 @@ async function main() {
 
     
   }
-  let user = await prisma.user.findFirst();
-  if (!user) {
-    const password = 'admin'
-    user = await prisma.user.create({
+  let userA = await prisma.user.findFirst({where: {email: 'admin@admin.com'}});
+  if (!userA) {
+    const password = "admin"
+    userA = await prisma.user.create({
       data: {
         email: "admin@admin.com",
         password: await bcrypt.hash(password, 12),
       },
     });
   }
-  let enrollment = await prisma.enrollment.findFirst();
-  if (!enrollment) {
-    enrollment = await prisma.enrollment.create({
+  let userB = await prisma.user.findFirst({where: {email: 'driven@driven.com'}});
+  if (!userB) {
+    const password = "driven"
+    userB = await prisma.user.create({
+      data: {
+        email: "driven@driven.com",
+        password: await bcrypt.hash(password, 12),
+      },
+    });
+  }
+  let enrollmentA = await prisma.enrollment.findFirst({where: {userId: userA.id}});
+  if (!enrollmentA) {
+    enrollmentA = await prisma.enrollment.create({
       data: {
         name: "Administrador Seed",
         cpf: "13403946770",
-        birthday: new Date('2000-01-01'),
+        birthday: new Date("2001-01-01"),
         phone: "(99)12345-6789",
-        userId: user.id
+        userId: userA.id
         
       },
     });
   }
-  let address = await prisma.address.findFirst({where: {cep: "22743670"}});
+  let enrollmentB = await prisma.enrollment.findFirst({where: {userId: userB.id}});
+  if (!enrollmentB) {
+    enrollmentB = await prisma.enrollment.create({
+      data: {
+        name: "Testando o ticket Seed",
+        cpf: "13403945770",
+        birthday: new Date("2001-01-01"),
+        phone: "(99)98765-4321",
+        userId: userB.id
+        
+      },
+    });
+  }
+  let address = await prisma.address.findFirst({where: {enrollmentId: enrollmentA.id}});
   if (!address) {
     address = await prisma.address.create({
       data: {
@@ -51,19 +74,55 @@ async function main() {
         state: 'RJ',
         number: '0',
         neighborhood: 'alguma',
-        enrollmentId: enrollment.id
-        
+        enrollmentId: enrollmentA.id
       },
     });
   }
-  let ticketType = await prisma.ticketType.findFirst();
-  if (!ticketType) {
-    ticketType = await prisma.ticketType.create({
+
+  let addressB = await prisma.address.findFirst({where: {enrollmentId: enrollmentB.id}});
+  if (!addressB) {
+    addressB = await prisma.address.create({
       data: {
-        name: "Ticket Type Seed",
+        cep: "22743670",
+        street: "rua dos bobos",
+        city: 'cidade natal',
+        state: 'RJ',
+        number: '0',
+        neighborhood: 'alguma',
+        enrollmentId: enrollmentA.id
+      },
+    });
+  }
+  let ticketTypeA = await prisma.ticketType.findFirst({where: {name:"Ticket com Hotel"}});
+  if (!ticketTypeA) {
+    ticketTypeA = await prisma.ticketType.create({
+      data: {
+        name: "Ticket com Hotel",
         price: 20000,
         isRemote: false,
         includesHotel: true
+      },
+    });
+  }
+  let ticketTypeB = await prisma.ticketType.findFirst({where: {name:"Ticket Sem Hotel"}});
+  if (!ticketTypeB) {
+    ticketTypeB = await prisma.ticketType.create({
+      data: {
+        name: "Ticket Sem Hotel",
+        price: 10000,
+        isRemote: false,
+        includesHotel: false
+      },
+    });
+  }
+  let ticketTypeC = await prisma.ticketType.findFirst({where: {name:"Ticket Online"}});
+  if (!ticketTypeC) {
+    ticketTypeC = await prisma.ticketType.create({
+      data: {
+        name: "Ticket Online",
+        price: 5000,
+        isRemote: true,
+        includesHotel: false
       },
     });
   }
@@ -71,8 +130,8 @@ async function main() {
   if (!ticket) {
     ticket = await prisma.ticket.create({
       data: {
-        ticketTypeId: ticketType.id,
-        enrollmentId: enrollment.id,
+        ticketTypeId: ticketTypeA.id,
+        enrollmentId: enrollmentA.id,
         status: 'PAID'
       },
     });
@@ -99,7 +158,7 @@ async function main() {
 
   
 
-  console.log({ event, hotel, room, ticket, ticketType, user, enrollment });
+  console.log({ event, hotel, room, ticket, ticketTypeA, ticketTypeB, ticketTypeC, userA, userB, enrollmentA, enrollmentB });
 
   }
 
