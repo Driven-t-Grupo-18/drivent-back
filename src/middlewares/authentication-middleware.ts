@@ -5,7 +5,7 @@ import { authenticationRepository } from '@/repositories';
 
 export async function authenticateToken(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   const authHeader = req.header('Authorization');
-
+  console.log(authHeader)
   if (!authHeader) throw unauthorizedError();
 
   const token = authHeader.split(' ')[1];

@@ -98,7 +98,7 @@ async function main() {
     ticketTypeA = await prisma.ticketType.create({
       data: {
         name: "Ticket com Hotel",
-        price: 20000,
+        price: 600,
         isRemote: false,
         includesHotel: true
       },
@@ -109,7 +109,7 @@ async function main() {
     ticketTypeB = await prisma.ticketType.create({
       data: {
         name: "Ticket Sem Hotel",
-        price: 10000,
+        price: 250,
         isRemote: false,
         includesHotel: false
       },
@@ -120,7 +120,7 @@ async function main() {
     ticketTypeC = await prisma.ticketType.create({
       data: {
         name: "Ticket Online",
-        price: 5000,
+        price: 100,
         isRemote: true,
         includesHotel: false
       },
