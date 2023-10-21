@@ -89,7 +89,7 @@ async function main() {
         state: 'RJ',
         number: '0',
         neighborhood: 'alguma',
-        enrollmentId: enrollmentA.id
+        enrollmentId: enrollmentB.id
       },
     });
   }
