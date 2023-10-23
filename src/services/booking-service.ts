@@ -51,6 +51,7 @@ async function getBooking(userId: number) {
 
 async function bookRoomById(userId: number, roomId: number) {
   await validateUserBooking(userId);
+
   await checkValidBooking(roomId);
 
   return bookingRepository.create({ roomId, userId });
