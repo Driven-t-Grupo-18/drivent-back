@@ -16,7 +16,7 @@ async function main() {
     }
     event = await prisma.event.create({data: objeto});
 
-    setRedis('event', JSON.stringify(objeto));
+    setRedis('event', JSON.stringify(event));
     
   }
   let userA = await prisma.user.findFirst({where: {email: 'admin@admin.com'}});
@@ -28,7 +28,7 @@ async function main() {
     }
     userA = await prisma.user.create({data: objeto});
 
-    setRedis('userA', JSON.stringify(objeto));
+    setRedis('userA', JSON.stringify(userA));
   }
   let userB = await prisma.user.findFirst({where: {email: 'driven@driven.com'}});
   if (!userB) {
@@ -39,7 +39,7 @@ async function main() {
     }
     userB = await prisma.user.create({data: objeto});
 
-    setRedis('userB', JSON.stringify(objeto));
+    setRedis('userB', JSON.stringify(userB));
   }
   let enrollmentA = await prisma.enrollment.findFirst({where: {userId: userA.id}});
   if (!enrollmentA) {
@@ -52,7 +52,7 @@ async function main() {
       
     }
     enrollmentA = await prisma.enrollment.create({data: objeto});
-    setRedis('enrollmentA', JSON.stringify(objeto));
+    setRedis('enrollmentA', JSON.stringify(enrollmentA));
 
   }
   let enrollmentB = await prisma.enrollment.findFirst({where: {userId: userB.id}});
@@ -66,7 +66,7 @@ async function main() {
       
     }
     enrollmentB = await prisma.enrollment.create({data: objeto});
-    setRedis('enrollmentB', JSON.stringify(objeto));
+    setRedis('enrollmentB', JSON.stringify(enrollmentB));
   }
   let addressA = await prisma.address.findFirst({where: {enrollmentId: enrollmentA.id}});
   if (!addressA) {
@@ -80,7 +80,7 @@ async function main() {
       enrollmentId: enrollmentA.id
     }
     addressA = await prisma.address.create({data: objeto});
-    setRedis('addressA', JSON.stringify(objeto));
+    setRedis('addressA', JSON.stringify(addressA));
   }
 
   let addressB = await prisma.address.findFirst({where: {enrollmentId: enrollmentB.id}});
@@ -95,7 +95,7 @@ async function main() {
       enrollmentId: enrollmentB.id
     }
     addressB = await prisma.address.create({data: objeto});
-    setRedis('addressB', JSON.stringify(objeto));
+    setRedis('addressB', JSON.stringify(addressB));
   }
   let ticketTypeA = await prisma.ticketType.findFirst({where: {name:"Ticket com Hotel"}});
   if (!ticketTypeA) {
@@ -106,7 +106,7 @@ async function main() {
       includesHotel: true
     }
     ticketTypeA = await prisma.ticketType.create({data: objeto});
-    setRedis('ticketTypeA', JSON.stringify(objeto));
+    setRedis('ticketTypeA', JSON.stringify(ticketTypeA));
   }
   let ticketTypeB = await prisma.ticketType.findFirst({where: {name:"Ticket Sem Hotel"}});
   if (!ticketTypeB) {
@@ -117,7 +117,7 @@ async function main() {
       includesHotel: false
     }
     ticketTypeB = await prisma.ticketType.create({data: objeto});
-    setRedis('ticketTypeB', JSON.stringify(objeto));
+    setRedis('ticketTypeB', JSON.stringify(ticketTypeB));
   }
   let ticketTypeC = await prisma.ticketType.findFirst({where: {name:"Ticket Online"}});
   if (!ticketTypeC) {
@@ -128,7 +128,7 @@ async function main() {
       includesHotel: false
     }
     ticketTypeC = await prisma.ticketType.create({data: objeto});
-    setRedis('ticketTypeC', JSON.stringify(objeto));
+    setRedis('ticketTypeC', JSON.stringify(ticketTypeC));
   }
   let ticket = await prisma.ticket.findFirst();
   if (!ticket) {
@@ -147,7 +147,7 @@ async function main() {
       image: "https://assets.hyatt.com/content/dam/hyatt/hyattdam/images/2017/08/29/1013/Grand-Hyatt-Rio-de-Janeiro-P443-Pool.jpg/Grand-Hyatt-Rio-de-Janeiro-P443-Pool.16x9.jpg?imwidth=1920",
     }
     hotel = await prisma.hotel.create({data: objeto});
-    setRedis('hotel', JSON.stringify(objeto));
+    setRedis('hotel', JSON.stringify(hotel));
   }
     let room = await prisma.room.findFirst();
   if (!room) {
@@ -157,7 +157,7 @@ async function main() {
       hotelId: hotel.id
     }
     room = await prisma.room.create({data: objeto});
-    setRedis('room', JSON.stringify(objeto));
+    setRedis('room', JSON.stringify(room));
   }
 
   
