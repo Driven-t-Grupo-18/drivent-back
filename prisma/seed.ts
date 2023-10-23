@@ -101,7 +101,7 @@ async function main() {
   if (!ticketTypeA) {
     const objeto = {
       name: "Ticket com Hotel",
-      price: 20000,
+      price: 350,
       isRemote: false,
       includesHotel: true
     }
@@ -112,7 +112,7 @@ async function main() {
   if (!ticketTypeB) {
     const objeto = {
       name: "Ticket Sem Hotel",
-      price: 10000,
+      price: 250,
       isRemote: false,
       includesHotel: false
     }
@@ -123,7 +123,7 @@ async function main() {
   if (!ticketTypeC) {
     const objeto = {
       name: "Ticket Online",
-      price: 5000,
+      price: 100,
       isRemote: true,
       includesHotel: false
     }
