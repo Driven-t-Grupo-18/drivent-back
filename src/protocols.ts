@@ -40,7 +40,7 @@ export type CardPaymentParams = {
   number: string;
   name: string;
   expirationDate: string;
-  cvv: string;
+  cvc: string;
 };
 
 export type InputPaymentBody = {
