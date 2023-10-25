@@ -1,10 +1,18 @@
-import { TicketStatus } from '@prisma/client';
+import { Booking, Hotel, Room, TicketStatus } from '@prisma/client';
 import { cannotBookError, notFoundError } from '@/errors';
 import { bookingRepository, enrollmentRepository, roomRepository, ticketsRepository } from '@/repositories';
+import { setRedis } from '@/redisConfig';
+
+interface RoomWithBookings extends Room {
+  Booking: Booking[]
+}
+interface HotelWithRooms extends Hotel {
+  Rooms: RoomWithBookings[]
+}
 
 async function getAll (){
   const hotels = await bookingRepository.getAll()
-  hotels.map(hotel => {
+  hotels.map((hotel: HotelWithRooms )=> {
     delete hotel.createdAt
     delete hotel.updatedAt
 
@@ -18,6 +26,9 @@ async function getAll (){
       })
     })
   })
+
+
+
   return hotels
 }
 async function validateUserBooking(userId: number) {
@@ -46,6 +57,7 @@ async function getBooking(userId: number) {
   const booking = await bookingRepository.findByUserId(userId);
   if (!booking) throw notFoundError();
 
+  
   return booking;
 }
 

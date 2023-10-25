@@ -4,9 +4,10 @@ import { AuthenticatedRequest } from '@/middlewares';
 import { bookingService } from '@/services';
 
 export async function getAllBookings(req: AuthenticatedRequest, res: Response) {
-  const booking = await bookingService.getAll();
+  const bookings = await bookingService.getAll();
 
-  return res.status(httpStatus.OK).send(booking);
+
+  return res.status(httpStatus.OK).send(bookings);
 }
 
 export async function getBooking(req: AuthenticatedRequest, res: Response) {

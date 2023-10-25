@@ -1,18 +1,41 @@
 import { prisma } from '@/config';
+import { getRedis, setRedis } from '@/redisConfig';
 
 async function findHotels() {
-  return prisma.hotel.findMany();
+  const redis = JSON.parse(await getRedis(`hotels`))
+
+  if(redis){
+    return redis
+  } else{
+  
+  const result = await prisma.hotel.findMany();
+
+  await setRedis(`hotels`, JSON.stringify(result))
+
+  return result
+  }
 }
 
 async function findRoomsByHotelId(hotelId: number) {
-  return prisma.hotel.findFirst({
-    where: {
-      id: hotelId,
-    },
-    include: {
-      Rooms: true,
-    },
-  });
+  const redis = JSON.parse(await getRedis(`roomsByHotelId-${hotelId}`))
+
+  if(redis){
+    return redis
+  } else{
+
+    const result = await prisma.hotel.findFirst({
+      where: {
+        id: hotelId,
+      },
+      include: {
+        Rooms: true,
+      },
+    });
+
+    await setRedis(`roomsByHotelId-${hotelId}`, JSON.stringify(result))
+    return result
+  }
+  
 }
 
 export const hotelRepository = {
