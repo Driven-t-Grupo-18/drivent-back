@@ -1,8 +1,9 @@
 import { Address } from '@prisma/client';
 import { prisma } from '@/config';
-
+import { setRedis } from '@/redisConfig';
+// Redis Aplicado
 async function upsert(enrollmentId: number, createdAddress: CreateAddressParams, updatedAddress: UpdateAddressParams) {
-  return prisma.address.upsert({
+  const result = await prisma.address.upsert({
     where: {
       enrollmentId,
     },
@@ -12,6 +13,8 @@ async function upsert(enrollmentId: number, createdAddress: CreateAddressParams,
     },
     update: updatedAddress,
   });
+  await setRedis(`addressByEnrollmentId-${enrollmentId}`, JSON.stringify(result));
+  return result;
 }
 
 export type CreateAddressParams = Omit<Address, 'id' | 'createdAt' | 'updatedAt' | 'enrollmentId'>;

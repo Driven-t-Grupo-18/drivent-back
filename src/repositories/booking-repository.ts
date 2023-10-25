@@ -1,7 +1,7 @@
 import { CreateBookingParams, UpdateBookingParams } from '@/protocols';
 import { prisma } from '@/config';
 import { getRedis, setRedis } from '@/redisConfig';
-
+// Redis Aplicado
 async function create({ roomId, userId }: CreateBookingParams) {
   const booking = prisma.booking.create({
     data: { roomId, userId },
@@ -11,7 +11,7 @@ async function create({ roomId, userId }: CreateBookingParams) {
 
   return booking;
 }
-
+// Redis Aplicado
 async function findByRoomId(roomId: number) {
   const bookingRedis = JSON.parse(await getRedis(`bookingByRoomId-${roomId}`));
   if (bookingRedis) {
@@ -26,7 +26,7 @@ async function findByRoomId(roomId: number) {
     return booking;
   }
 }
-
+// Redis Aplicado
 async function findByUserId(userId: number) {
   const bookingRedis = JSON.parse(await getRedis(`bookingByUserId-${userId}`));
   if (bookingRedis) {
@@ -41,7 +41,7 @@ async function findByUserId(userId: number) {
     return booking;
   }
 }
-
+// Redis Aplicado
 async function upsertBooking({ id, roomId, userId }: UpdateBookingParams) {
   const booking = prisma.booking.upsert({
     where: { id },
@@ -53,6 +53,7 @@ async function upsertBooking({ id, roomId, userId }: UpdateBookingParams) {
   await setRedis(`bookingByUserId-${userId}`, JSON.stringify(booking));
   return booking;
 }
+// Redis Aplicado
 async function getAll() {
   if (JSON.parse(await getRedis(`hotels`))) {
     return JSON.parse(await getRedis(`hotels`));

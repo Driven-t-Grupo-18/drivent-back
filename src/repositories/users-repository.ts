@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/config';
 import { getRedis, setRedis } from '@/redisConfig';
-
+// Redis Aplicado
 async function findByEmail(email: string, select?: Prisma.UserSelect) {
   const params: Prisma.UserFindUniqueArgs = {
     where: {
@@ -13,24 +13,24 @@ async function findByEmail(email: string, select?: Prisma.UserSelect) {
     params.select = select;
   }
 
-  const redis = JSON.parse(await getRedis(`user-${email}`))
+  const redis = JSON.parse(await getRedis(`user-${email}`));
   if (redis) {
-    return redis
+    return redis;
   } else {
     const result = await prisma.user.findUnique(params);
-    await setRedis(`user-${email}`, JSON.stringify(result))
-    return result
+    await setRedis(`user-${email}`, JSON.stringify(result));
+    return result;
   }
 }
-
+// Redis Aplicado
 async function create(data: Prisma.UserUncheckedCreateInput) {
   const result = await prisma.user.create({
     data,
   });
-  await setRedis(`user-${result.email}`, JSON.stringify(result))
-  await setRedis(`user-${result.id}`, JSON.stringify(result))
+  await setRedis(`user-${result.email}`, JSON.stringify(result));
+  await setRedis(`user-${result.id}`, JSON.stringify(result));
 
-  return result
+  return result;
 }
 
 export const userRepository = {

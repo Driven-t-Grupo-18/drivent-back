@@ -1,27 +1,22 @@
 import { prisma } from '@/config';
 import { PaymentParams } from '@/protocols';
 import { getRedis, setRedis } from '@/redisConfig';
-
+// Redis Aplicado
 async function findPaymentByTicketId(ticketId: number) {
-  const redis = JSON.parse(await getRedis(`paymentByTicketId-${ticketId}`))
+  const redis = JSON.parse(await getRedis(`paymentByTicketId-${ticketId}`));
 
-  if(redis){
-    return redis
-  } else{
-
+  if (redis) {
+    return redis;
+  } else {
     const result = await prisma.payment.findFirst({
       where: { ticketId },
     });
 
-    await setRedis(`paymentByTicketId-${ticketId}`, JSON.stringify(result))
-    return result
+    await setRedis(`paymentByTicketId-${ticketId}`, JSON.stringify(result));
+    return result;
   }
-  
-  
-  
-
 }
-
+// Redis Aplicado
 async function createPayment(ticketId: number, params: PaymentParams) {
   const result = await prisma.payment.create({
     data: {
@@ -30,7 +25,7 @@ async function createPayment(ticketId: number, params: PaymentParams) {
     },
   });
 
-  await setRedis(`paymentByTicketId-${ticketId}`, JSON.stringify(result))
+  await setRedis(`paymentByTicketId-${ticketId}`, JSON.stringify(result));
 
   return result;
 }
