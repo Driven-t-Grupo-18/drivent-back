@@ -3,7 +3,6 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { invalidCredentialsError } from '@/errors';
 import { authenticationRepository, userRepository } from '@/repositories';
-import { exclude } from '@/utils/prisma-utils';
 import { getRedis, setRedis } from '@/redisConfig';
 
 async function signIn(params: SignInParams): Promise<SignInResult> {
@@ -24,7 +23,7 @@ async function signIn(params: SignInParams): Promise<SignInResult> {
 }
 
 async function getUserOrFail(email: string): Promise<GetUserOrFailResult> {
-  const user = JSON.parse(await getRedis(`user-${email}`)) || await userRepository.findByEmail(email, { id: true, email: true, password: true });
+  const user = await userRepository.findByEmail(email, { id: true, email: true, password: true });
   if (!user) throw invalidCredentialsError();
   return user;
 }
