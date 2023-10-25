@@ -1,5 +1,6 @@
 import { invalidDataError, notFoundError, unauthorizedError } from '@/errors';
 import { CardPaymentParams, PaymentParams } from '@/protocols';
+import { setRedis } from '@/redisConfig';
 import { enrollmentRepository, paymentsRepository, ticketsRepository } from '@/repositories';
 
 async function verifyTicketAndEnrollment(userId: number, ticketId: number) {
@@ -33,7 +34,8 @@ async function paymentProcess(ticketId: number, userId: number, cardData: CardPa
   };
 
   const payment = await paymentsRepository.createPayment(ticketId, paymentData);
-  await ticketsRepository.ticketProcessPayment(ticketId);
+  const ticketPaid = await ticketsRepository.ticketProcessPayment(ticketId);
+  setRedis(`ticket-${ticket.enrollmentId}`, JSON.stringify(ticketPaid))
   return payment;
 }
 

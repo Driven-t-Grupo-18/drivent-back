@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { invalidCredentialsError } from '@/errors';
 import { authenticationRepository, userRepository } from '@/repositories';
 import { exclude } from '@/utils/prisma-utils';
-import { setRedis } from '@/redisConfig';
+import { getRedis, setRedis } from '@/redisConfig';
 
 async function signIn(params: SignInParams): Promise<SignInResult> {
   const { email, password } = params;
@@ -14,15 +14,17 @@ async function signIn(params: SignInParams): Promise<SignInResult> {
   await validatePasswordOrFail(password, user.password);
 
   const token = await createSession(user.id);
+  delete user.password
+  await setRedis(`user-${token}`, JSON.stringify(user));
 
   return {
-    user: exclude(user, 'password'),
+    user,
     token,
   };
 }
 
 async function getUserOrFail(email: string): Promise<GetUserOrFailResult> {
-  const user = await userRepository.findByEmail(email, { id: true, email: true, password: true });
+  const user = JSON.parse(await getRedis(`user-${email}`)) || await userRepository.findByEmail(email, { id: true, email: true, password: true });
   if (!user) throw invalidCredentialsError();
   return user;
 }
@@ -33,7 +35,6 @@ async function createSession(userId: number) {
     token,
     userId,
   });
-  await setRedis(token, JSON.stringify(userId));
 
   return token;
 }
