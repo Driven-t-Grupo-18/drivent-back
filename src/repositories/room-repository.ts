@@ -24,7 +24,7 @@ async function findById(roomId: number) {
       where: { id: roomId },
     });
     setRedis(`roomById-${roomId}`, JSON.stringify(result));
-    return;
+    return result;
   }
 }
 
