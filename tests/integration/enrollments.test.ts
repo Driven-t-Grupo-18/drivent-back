@@ -161,6 +161,7 @@ describe('POST /enrollments', () => {
 
         expect(response.status).toBe(httpStatus.OK);
         const enrollment = await prisma.enrollment.findFirst({ where: { cpf: body.cpf } });
+        console.log(enrollment)
         expect(enrollment).toBeDefined();
       });
 

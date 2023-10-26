@@ -11,15 +11,20 @@ async function findTicketTypes() {
 }
 // Redis Aplicado
 async function findTicketByEnrollmentId(enrollmentId: number) {
-  const redis = JSON.parse(await getRedis(`ticketsByEnrollmentId-${enrollmentId}`));
-  if (redis) {
+  
+  const redis = JSON.parse(await getRedis(`ticketByEnrollmentId-${enrollmentId}`));
+  if (redis !== null) {
     return redis;
   } else {
+
     const result = await prisma.ticket.findUnique({
       where: { enrollmentId },
       include: { TicketType: true },
     });
-    await setRedis(`ticketsByEnrollmentId-${enrollmentId}`, JSON.stringify(result));
+    if( result ){
+    await setRedis(`ticketByEnrollmentId-${enrollmentId}`, JSON.stringify(result));
+    await setRedis(`ticketById-${result.id}`, JSON.stringify(result));
+    }
     return result;
   }
 }
@@ -29,34 +34,42 @@ async function createTicket(ticket: CreateTicketParams) {
     data: ticket,
     include: { TicketType: true },
   });
-  await setRedis(`ticket-${ticket}`, JSON.stringify(result));
+  await setRedis(`ticketById-${result.id}`, JSON.stringify(result));
+  await setRedis(`ticketByEnrollmentId-${result.enrollmentId}`, JSON.stringify(result));
   return result;
 }
 // Redis Aplicado
 async function findTicketById(ticketId: number) {
   const redis = JSON.parse(await getRedis(`ticketById-${ticketId}`));
-  if (redis) {
+  if (redis !== null) {
     return redis;
   } else {
     const result = await prisma.ticket.findUnique({
       where: { id: ticketId },
       include: { TicketType: true },
     });
-    await setRedis(`ticketsById-${ticketId}`, JSON.stringify(result));
+    await setRedis(`ticketById-${ticketId}`, JSON.stringify(result));
+    await setRedis(`ticketByEnrollmentId-${result.enrollmentId}`, JSON.stringify(result));
+
     return result;
   }
 }
 // Redis Aplicado
 async function ticketProcessPayment(ticketId: number) {
-  const result = prisma.ticket.update({
+  const result = await prisma.ticket.update({
     where: {
       id: ticketId,
     },
     data: {
       status: TicketStatus.PAID,
     },
+    include: {
+      TicketType: true
+    }
   });
   await setRedis(`ticketById-${ticketId}`, JSON.stringify(result));
+  await setRedis(`ticketByEnrollmentId-${result.enrollmentId}`, JSON.stringify(result));
+
   return result;
 }
 

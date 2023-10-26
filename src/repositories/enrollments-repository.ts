@@ -1,23 +1,21 @@
-import { Enrollment } from '@prisma/client';
+import { Address, Enrollment } from '@prisma/client';
 import { prisma } from '@/config';
 import { getRedis, setRedis } from '@/redisConfig';
 
 // Redis Aplicado
 async function findWithAddressByUserId(userId: number) {
-  const enrollmentRedis = JSON.parse(await getRedis(`enrollmentWithAddressByUserId-${userId}`));
-  if (enrollmentRedis) {
-    return enrollmentRedis;
-  } else {
     const enrollment = await prisma.enrollment.findFirst({
       where: { userId },
       include: {
         Address: true,
       },
     });
-    await setRedis(`enrollmentWithAddressByUserId-${userId}`, JSON.stringify(enrollment));
+    setRedis(`enrollmentByUserId-${userId}`, JSON.stringify(enrollment));
+
     return enrollment;
+  
   }
-}
+
 // Redis Aplicado
 async function upsert(
   userId: number,
@@ -31,7 +29,6 @@ async function upsert(
     create: createdEnrollment,
     update: updatedEnrollment,
   });
-  await setRedis(`enrollmentByUserId-${userId}`, JSON.stringify(enrollment));
   return enrollment;
 }
 

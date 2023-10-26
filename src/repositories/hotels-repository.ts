@@ -16,7 +16,7 @@ async function findHotels() {
 }
 // Redis Aplicado
 async function findRoomsByHotelId(hotelId: number) {
-  const redis = JSON.parse(await getRedis(`roomsByHotelId-${hotelId}`));
+  const redis = JSON.parse(await getRedis(`hotelWithRoomsByHotelId-${hotelId}`));
 
   if (redis) {
     return redis;
@@ -30,7 +30,7 @@ async function findRoomsByHotelId(hotelId: number) {
       },
     });
 
-    await setRedis(`roomsByHotelId-${hotelId}`, JSON.stringify(result));
+    await setRedis(`hotelWithRoomsByHotelId-${hotelId}`, JSON.stringify(result));
     return result;
   }
 }

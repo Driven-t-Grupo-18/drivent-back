@@ -20,9 +20,8 @@ async function validateUserBooking(userId: number) {
 
 async function getHotels(userId: number) {
   await validateUserBooking(userId);
-  const hotels = JSON.parse(await getRedis('hotel'));
-  /*   const hotels = await hotelRepository.findHotels(); */
-  if (hotels.length === 0) throw notFoundError();
+  const hotels = await hotelRepository.findHotels();
+  if (hotels?.length === 0) throw notFoundError();
 
   return hotels;
 }

@@ -22,7 +22,7 @@ async function createPayment(ticketId: number, params: PaymentParams) {
     data: {
       ticketId,
       ...params,
-    },
+    }
   });
 
   await setRedis(`paymentByTicketId-${ticketId}`, JSON.stringify(result));

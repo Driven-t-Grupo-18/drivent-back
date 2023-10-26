@@ -3,72 +3,63 @@ import { prisma } from '@/config';
 import { getRedis, setRedis } from '@/redisConfig';
 // Redis Aplicado
 async function create({ roomId, userId }: CreateBookingParams) {
-  const booking = prisma.booking.create({
+  const booking = await prisma.booking.create({
     data: { roomId, userId },
   });
-  await setRedis(`bookingByRoomId-${roomId}`, JSON.stringify(booking));
   await setRedis(`bookingByUserId-${userId}`, JSON.stringify(booking));
 
   return booking;
 }
 // Redis Aplicado
 async function findByRoomId(roomId: number) {
-  const bookingRedis = JSON.parse(await getRedis(`bookingByRoomId-${roomId}`));
-  if (bookingRedis) {
-    return bookingRedis;
-  } else {
-    const booking = await prisma.booking.findMany({
-      where: { roomId },
-      include: { Room: true },
-    });
-    await setRedis(`bookingByRoomId-${roomId}`, JSON.stringify(booking));
 
-    return booking;
-  }
+  const bookings = await prisma.booking.findMany({
+    where: { roomId },
+    include: { Room: true },
+  });
+
+  return bookings;
 }
 // Redis Aplicado
 async function findByUserId(userId: number) {
   const bookingRedis = JSON.parse(await getRedis(`bookingByUserId-${userId}`));
-  if (bookingRedis) {
+  if (bookingRedis && bookingRedis.id) {
     return bookingRedis;
   } else {
     const booking = await prisma.booking.findFirst({
       where: { userId },
       include: { Room: true },
     });
-    await setRedis(`bookingByUserId-${userId}`, JSON.stringify(booking));
 
+    await setRedis(`bookingByUserId-${userId}`, JSON.stringify(booking));
     return booking;
   }
 }
 // Redis Aplicado
 async function upsertBooking({ id, roomId, userId }: UpdateBookingParams) {
-  const booking = prisma.booking.upsert({
+  const redisBooking = await getRedis(`bookingByUserId-${userId}`)
+  const booking = await prisma.booking.upsert({
     where: { id },
     create: { roomId, userId },
     update: { roomId },
   });
-
-  await setRedis(`bookingByRoomId-${roomId}`, JSON.stringify(booking));
-  await setRedis(`bookingByUserId-${userId}`, JSON.stringify(booking));
+  if (booking) {
+    redisBooking.roomId === roomId
+    await setRedis(`bookingByUserId-${userId}`, JSON.stringify(redisBooking));
+  }
   return booking;
 }
 // Redis Aplicado
 async function getAll() {
-  if (JSON.parse(await getRedis(`hotels`))) {
-    return JSON.parse(await getRedis(`hotels`));
-  } else {
-    const hotels = await prisma.hotel.findMany({
-      include: {
-        Rooms: {
-          include: { Booking: true },
-        },
+  const hotels = await prisma.hotel.findMany({
+    include: {
+      Rooms: {
+        include: { Booking: true },
       },
-    });
-    await setRedis(`hotelsWithRoomsAndBookings`, JSON.stringify(hotels));
+    },
+  });
 
-    return hotels;
-  }
+  return hotels;
 }
 export const bookingRepository = {
   create,

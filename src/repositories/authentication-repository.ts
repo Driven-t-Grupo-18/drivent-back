@@ -1,12 +1,17 @@
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/config';
-import { getRedis, setRedis } from '@/redisConfig';
+import { getRedis,setRedis } from '@/redisConfig';
 
 async function createSession(data: Prisma.SessionUncheckedCreateInput) {
   const result = await prisma.session.create({
     data,
   });
-  await setRedis(`user-${result.token}`, JSON.stringify(result));
+
+
+
+  await setRedis(`user-${result.token}`, JSON.stringify(result))
+  await setRedis(`user-${result.userId}`, JSON.stringify(result))
+
   return result;
 }
 
@@ -21,7 +26,11 @@ async function findSession(token: string) {
       },
     });
 
-    await setRedis(`user-${token}`, JSON.stringify(result));
+   
+  
+    await setRedis(`user-${result.token}`, JSON.stringify(result))
+    await setRedis(`user-${result.userId}`, JSON.stringify(result))
+
     return result;
   }
 }

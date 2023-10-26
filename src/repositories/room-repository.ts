@@ -3,14 +3,14 @@ import { getRedis, setRedis } from '@/redisConfig';
 
 // Redis Aplicado ------------------------------------ //
 async function findAllByHotelId(hotelId: number) {
-  const redis = JSON.parse(await getRedis(`allByHotelId-${hotelId}`));
+  const redis = JSON.parse(await getRedis(`RoomsByHotelId-${hotelId}`));
   if (redis) {
     return redis;
   } else {
     const result = await prisma.room.findMany({
       where: { hotelId },
     });
-    setRedis(`allByHotelId-${hotelId}`, JSON.stringify(result));
+    setRedis(`RoomsByHotelId-${hotelId}`, JSON.stringify(result));
     return result;
   }
 }
