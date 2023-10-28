@@ -89,6 +89,7 @@
     "ioredis": "^5.3.2",
     "joi": "^17.6.0",
     "jsonwebtoken": "^8.5.1",
+    "query-string": "^7.1.1",
     "redis": "^4.6.10",
     "reflect-metadata": "^0.1.13"
   }
