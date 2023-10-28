@@ -1,12 +1,13 @@
 import { Router } from 'express';
-import { getDayActivities, getShowActivities, postActivityRecord } from '@/controllers/activities-controller';
-import { authenticateToken } from '@/middlewares';
+import { getDayActivities, getShowDates, postActivityRecord } from '@/controllers/activities-controller';
+import { authenticateToken, validateBody, validateParams } from '@/middlewares';
+import { activitySchema } from '@/schemas/activities-schemas';
 
 const activitiesRouter = Router();
 
 activitiesRouter.all('/*', authenticateToken);
-activitiesRouter.get('/', getShowActivities);
-activitiesRouter.get('/Day/:id', getDayActivities);
-activitiesRouter.get('/registry', postActivityRecord);
+activitiesRouter.get('/', getShowDates);
+activitiesRouter.get('/Day/:activityDayId', validateParams, getDayActivities);
+activitiesRouter.post('/record', validateBody(activitySchema), postActivityRecord);
 
 export { activitiesRouter };

@@ -1,13 +1,26 @@
 import { notFoundError } from '@/errors';
 import { activitiesRepository } from '@/repositories/activities-repository';
 
-async function getListActivityDays() {
+async function getListDates() {
   const activitiesDay = await activitiesRepository.getAllActivitiesDay();
   if (!activitiesDay) throw notFoundError();
 
   return activitiesDay;
 }
 
+async function getDayActivities(activityDayId: number, userId: number) {
+  const activitiesFromDay = await activitiesRepository.findActivitiesFromDay(activityDayId);
+
+  if (!activitiesFromDay) throw notFoundError();
+
+  const userActivities = await activitiesRepository.findActivitiesFromUser(userId);
+
+  const userActivitiesIds = userActivities.map((activity) => activity.id);
+
+  return { activitiesFromDay, userActivitiesIds };
+}
+
 export const activitiesService = {
-  getListActivityDays,
+  getListDates,
+  getDayActivities,
 };
