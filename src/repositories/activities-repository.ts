@@ -1,3 +1,4 @@
+import { Activity } from '@prisma/client';
 import { prisma } from '@/config';
 
 async function getAllActivitiesDay() {
@@ -29,8 +30,42 @@ async function findActivitiesFromUser(userId: number) {
 
   return userActivities;
 }
+
+async function findActivityDayById(activityDayId: number) {
+  return await prisma.activityDay.findUnique({
+    where: { id: activityDayId },
+  });
+}
+
+async function findActivityById(activityId: number) {
+  return await prisma.activity.findUnique({
+    where: { id: activityId },
+  });
+}
+
+async function recordUserActivity(activityId: number, activityDayId: number, userId: number) {
+  return await prisma.activityRegistration.create({
+    data: {
+      activityId,
+      activityDayId,
+      userId,
+    },
+  });
+}
+
+async function updateActivityCapacity(activity: Activity) {
+  return await prisma.activity.update({
+    data: { capacity: activity.capacity - 1 },
+    where: { id: activity.id },
+  });
+}
+
 export const activitiesRepository = {
   getAllActivitiesDay,
   findActivitiesFromDay,
   findActivitiesFromUser,
+  findActivityDayById,
+  findActivityById,
+  recordUserActivity,
+  updateActivityCapacity,
 };

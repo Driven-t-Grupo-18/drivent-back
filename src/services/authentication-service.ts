@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { invalidCredentialsError } from '@/errors';
 import { authenticationRepository, userRepository } from '@/repositories';
-import { getRedis, setRedis } from '@/redisConfig';
+import { setRedis } from '@/redisConfig';
 
 async function signIn(params: SignInParams): Promise<SignInResult> {
   const { email, password } = params;
@@ -13,7 +13,7 @@ async function signIn(params: SignInParams): Promise<SignInResult> {
   await validatePasswordOrFail(password, user.password);
 
   const token = await createSession(user.id);
-  delete user.password
+  delete user.password;
   await setRedis(`user-${token}`, JSON.stringify(user));
 
   return {
