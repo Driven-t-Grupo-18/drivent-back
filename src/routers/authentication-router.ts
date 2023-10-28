@@ -7,7 +7,7 @@ const authenticationRouter = Router();
 
 authenticationRouter
     .post('/sign-in', validateBody(signInSchema), singInPost)
-    .post('/sign-in', githubSignIn);
+    .post('/sign-in-github', githubSignIn);
 
 
 export { authenticationRouter };

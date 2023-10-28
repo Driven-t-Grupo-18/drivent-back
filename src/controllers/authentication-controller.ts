@@ -12,7 +12,6 @@ export async function singInPost(req: Request, res: Response) {
 
 export async function githubSignIn(req: Request, res: Response) {
   const code = req.body.code as string;
-  console.log(code);
 
   try {
     const token = await authenticationService.loginUserWithGitHub(code);

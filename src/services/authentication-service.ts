@@ -49,6 +49,7 @@ async function validatePasswordOrFail(password: string, userPassword: string) {
 
 async function loginUserWithGitHub(code:string) {
   const token = exchangeCodeForAcessToken(code);
+  return token;
 }
 
 async function exchangeCodeForAcessToken(code:string) {
@@ -68,9 +69,8 @@ async function exchangeCodeForAcessToken(code:string) {
       'Content-Type': 'application/json'
     }
   });
-
   const { access_token } = qs.parse(data);
-  return Array.isArray(access_token) ? access_token.join("") : access_token;  
+  return Array.isArray(access_token) ? access_token.join("") : access_token;
 }
 
 export type SignInParams = Pick<User, 'email' | 'password'>;
