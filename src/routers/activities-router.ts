@@ -7,7 +7,8 @@ const activitiesRouter = Router();
 
 activitiesRouter.all('/*', authenticateToken);
 activitiesRouter.get('/', getShowDates);
-activitiesRouter.get('/Day/:activityDayId', validateParams, getDayActivities);
+activitiesRouter.get('/Day/:activityDayId', getDayActivities);
 activitiesRouter.post('/record', validateBody(activitySchema), postActivityRecord);
 
 export { activitiesRouter };
+ 

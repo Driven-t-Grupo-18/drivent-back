@@ -1,4 +1,4 @@
-import { Activity } from '@prisma/client';
+import { Activity, ActivityDay } from '@prisma/client';
 import { prisma } from '@/config';
 
 async function getAllActivitiesDay() {
@@ -60,6 +60,14 @@ async function updateActivityCapacity(activity: Activity) {
   });
 }
 
+async function getReservationsByDay(activityDayId: number){
+  return await prisma.activityRegistration.groupBy({
+    where: {activityDayId},
+    by: ['activityId'],
+    _count: true 
+  })
+}
+
 export const activitiesRepository = {
   getAllActivitiesDay,
   findActivitiesFromDay,
@@ -68,4 +76,5 @@ export const activitiesRepository = {
   findActivityById,
   recordUserActivity,
   updateActivityCapacity,
+  getReservationsByDay
 };

@@ -148,9 +148,9 @@ async function main() {
     
   }
 
-  const activityDays = await prisma.activityDay.findFirst();
+  let activityDays: any = await prisma.activityDay.findFirst();
   if (!activityDays) {
-    const seedActivityDays = await prisma.activityDay.createMany({
+    activityDays = await prisma.activityDay.createMany({
       data: [
         { startsAt: dayjs().add(2, "days").toDate() },
         { startsAt: dayjs().add(3, "days").toDate() },
@@ -160,9 +160,10 @@ async function main() {
   }
 
   const activitiesList = await prisma.activity.findFirst();
+  let seedActivities: any; 
   if (!activitiesList) {
-    const activityDays = await prisma.activityDay.findMany({});
-    const seedActivities = await prisma.activity.createMany(
+    activityDays = await prisma.activityDay.findMany({});
+    seedActivities = await prisma.activity.createMany(
       {
         data: [
           { 
@@ -208,7 +209,7 @@ async function main() {
         ]
       });
   }
-  console.log({ event, hotel, roomA, roomB, ticketTypeA, ticketTypeB, ticketTypeC, userA, userB, enrollmentA, enrollmentB, activityDays, seedActivityDays, seedActivities });
+  console.log({ event, hotel, roomA, roomB, ticketTypeA, ticketTypeB, ticketTypeC, userA, userB, enrollmentA, enrollmentB, activityDays, seedActivities });
 }
 
 

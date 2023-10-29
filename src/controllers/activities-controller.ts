@@ -13,7 +13,6 @@ export async function getDayActivities(req: AuthenticatedRequest, res: Response)
   const { userId } = req;
 
   const activityDayId = Number(req.params.activityDayId);
-
   const listDayActivities = await activitiesService.getDayActivities(activityDayId, userId);
 
   return res.status(httpStatus.OK).send(listDayActivities);
