@@ -32,6 +32,11 @@ async function getUserOrFail(email: string): Promise<GetUserOrFailResult> {
   return user;
 }
 
+async function getUser(email: string): Promise<GetUserOrFailResult> {
+  const user = await userRepository.findByEmail(email, { id: true, email: true, password: true });
+  return user;
+}
+
 async function createSession(userId: number) {
   const token = jwt.sign({ userId }, process.env.JWT_SECRET);
   await authenticationRepository.createSession({
@@ -48,10 +53,47 @@ async function validatePasswordOrFail(password: string, userPassword: string) {
 }
 
 async function loginUserWithGitHub(code:string) {
-  const token = exchangeCodeForAcessToken(code);
-  return token;
+  const tokenGithub = await exchangeCodeForAcessToken(code);
+  const userGithub = await fetchUserGitHub(tokenGithub);
+  const emailsGithub = await fetchEmailGitHub(tokenGithub);
+
+  let user;
+  for (let i = 0; i < emailsGithub.length; i++) {
+    user = await getUser(emailsGithub[i].email);
+    if(user)
+    {
+      const token = await createSession(user.id);
+      delete user.password
+      await setRedis(`user-${token}`, JSON.stringify(user));
+      
+      return {
+        user,
+        token,
+      };
+    }
+  }
+  if (!user) throw invalidCredentialsError();
 }
 
+async function fetchUserGitHub(token:string) {
+  const GITHUB_ACCESS_USER_URL = "https://api.github.com/user";
+  const response = await axios.get(GITHUB_ACCESS_USER_URL,{
+    headers : {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+}
+
+async function fetchEmailGitHub(token:string) {
+  const GITHUB_ACCESS_USER_URL = "https://api.github.com/user/emails";
+  const response = await axios.get(GITHUB_ACCESS_USER_URL,{
+    headers : {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+}
 async function exchangeCodeForAcessToken(code:string) {
   const GITHUB_ACCESS_TOKEN_URL = "https://github.com/login/oauth/access_token";
 
