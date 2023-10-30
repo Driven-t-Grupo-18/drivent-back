@@ -39,12 +39,13 @@ async function getUser(email: string): Promise<GetUserOrFailResult> {
 }
 
 async function createSession(userId: number) {
+  console.log(userId)
   const token = jwt.sign({ userId }, process.env.JWT_SECRET);
   await authenticationRepository.createSession({
     token,
     userId,
   });
-
+console.log(token)
   return token;
 }
 
@@ -62,22 +63,18 @@ async function loginUserWithGitHub(code:string) {
   let user;
   for (let i = 0; i < emailsGithub.length; i++) {
     user = await getUser(emailsGithub[i].email) || await userRepository.create({email: emailsGithub[i].email, password: 'registeredByGithub'});
-    
+    console.log(user)
     if(user)
     {
       const token = await createSession(user.id);
       delete user.password
       await setRedis(`user-${token}`, JSON.stringify(user));
       
-      return {
-        user,
-        token,
-      };
+      return {user, token};
     }
   }
   if (!user) throw invalidCredentialsError();
 
-  console.log(user)
 }
 
 async function fetchUserGitHub(token:string) {

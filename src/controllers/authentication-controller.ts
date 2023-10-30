@@ -15,7 +15,7 @@ export async function githubSignIn(req: Request, res: Response) {
 
   try {
 
-    const token = await authenticationService.loginUserWithGitHub(code);
+    const {token} = await authenticationService.loginUserWithGitHub(code);
     res.send({ token });
   } catch (error) {
     console.log(error);
