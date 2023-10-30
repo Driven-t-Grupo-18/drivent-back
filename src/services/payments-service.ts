@@ -34,12 +34,7 @@ async function paymentProcess(ticketId: number, userId: number, cardData: CardPa
   };
 
   const payment = await paymentsRepository.createPayment(ticketId, paymentData);
-  const ticketPaid = await ticketsRepository.ticketProcessPayment(ticketId);
-  setRedis(`ticketByEnrollmentId-${ticket.enrollmentId}`, JSON.stringify(ticketPaid));
-  setRedis(`ticketById-${ticketId}`, JSON.stringify(ticketPaid));
-  setRedis(`ticketByUserId-${userId}`, JSON.stringify(ticketPaid));
-  setRedis(`paymentByTicketId`, JSON.stringify(payment.ticketId));
-  return payment;
+  return payment[0];
 }
 
 export const paymentsService = {

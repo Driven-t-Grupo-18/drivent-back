@@ -52,9 +52,8 @@ async function recordAcivity(params: ActivityInputSelected, userId: number) {
 
   if (activity.capacity <= 0) throw conflictError('Limit capacity reached for this event.');
 
-  await activitiesRepository.recordUserActivity(activityId, activityDayId, userId);
+  await activitiesRepository.recordUserActivity(activity.capacity, activityId, activityDayId, userId);
 
-  await activitiesRepository.updateActivityCapacity(activity);
 }
 
 export const activitiesService = {
