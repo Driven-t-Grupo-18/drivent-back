@@ -3,7 +3,12 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { invalidCredentialsError } from '@/errors';
 import { authenticationRepository, userRepository } from '@/repositories';
-import { setRedis } from '@/redisConfig';
+import { getRedis, setRedis } from '@/redisConfig';
+import axios from 'axios';
+import qs from "query-string"
+import dotenv from "dotenv";
+dotenv.config();
+
 
 async function signIn(params: SignInParams): Promise<SignInResult> {
   const { email, password } = params;
@@ -28,6 +33,11 @@ async function getUserOrFail(email: string): Promise<GetUserOrFailResult> {
   return user;
 }
 
+async function getUser(email: string): Promise<GetUserOrFailResult> {
+  const user = await userRepository.findByEmail(email, { id: true, email: true, password: true });
+  return user;
+}
+
 async function createSession(userId: number) {
   const token = jwt.sign({ userId }, process.env.JWT_SECRET);
   await authenticationRepository.createSession({
@@ -43,6 +53,69 @@ async function validatePasswordOrFail(password: string, userPassword: string) {
   if (!isPasswordValid) throw invalidCredentialsError();
 }
 
+async function loginUserWithGitHub(code:string) {
+  const tokenGithub = await exchangeCodeForAcessToken(code);
+  const userGithub = await fetchUserGitHub(tokenGithub);
+  const emailsGithub = await fetchEmailGitHub(tokenGithub);
+
+  let user;
+  for (let i = 0; i < emailsGithub.length; i++) {
+    user = await getUser(emailsGithub[i].email);
+    if(user)
+    {
+      const token = await createSession(user.id);
+      delete user.password
+      await setRedis(`user-${token}`, JSON.stringify(user));
+      
+      return {
+        user,
+        token,
+      };
+    }
+  }
+  if (!user) throw invalidCredentialsError();
+}
+
+async function fetchUserGitHub(token:string) {
+  const GITHUB_ACCESS_USER_URL = "https://api.github.com/user";
+  const response = await axios.get(GITHUB_ACCESS_USER_URL,{
+    headers : {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+}
+
+async function fetchEmailGitHub(token:string) {
+  const GITHUB_ACCESS_USER_URL = "https://api.github.com/user/emails";
+  const response = await axios.get(GITHUB_ACCESS_USER_URL,{
+    headers : {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+}
+async function exchangeCodeForAcessToken(code:string) {
+  const GITHUB_ACCESS_TOKEN_URL = "https://github.com/login/oauth/access_token";
+
+  const { REDIRECT_URL, CLIENT_ID, CLIENT_SECRET } = process.env;
+  const params: GitHubParamsForAccessToken = {
+    code,
+    grant_type: "authorization_code",
+    redirect_uri: REDIRECT_URL,
+    client_id: CLIENT_ID,
+    client_secret: CLIENT_SECRET
+  }
+
+  const { data } =  await axios.post(GITHUB_ACCESS_TOKEN_URL, params, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+  const { access_token } = qs.parse(data);
+  return Array.isArray(access_token) ? access_token.join("") : access_token;
+}
+
 export type SignInParams = Pick<User, 'email' | 'password'>;
 
 type SignInResult = {
@@ -52,6 +125,14 @@ type SignInResult = {
 
 type GetUserOrFailResult = Pick<User, 'id' | 'email' | 'password'>;
 
+type GitHubParamsForAccessToken = {
+  code: string;
+  grant_type: string;
+  redirect_uri: string;
+  client_id: string;
+  client_secret: string;
+}
+
 export const authenticationService = {
-  signIn,
+  signIn, loginUserWithGitHub
 };
