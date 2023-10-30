@@ -30,7 +30,10 @@ async function getDayActivities(activityDayId: number, userId: number) {
   const activitiesFromDay = await activitiesRepository.findActivitiesFromDay(activityDayId);
 
   if (!activitiesFromDay) throw notFoundError();
-  const activitiesFromDayWithOccupation = await getAvailabilityByDay(activityDayId, activitiesFromDay)
+  const activitiesFromDayWithOccupation = (await getAvailabilityByDay(activityDayId, activitiesFromDay)).sort((x, y) => {
+    if (x.startsAt > y.startsAt) return 1
+    if (x.startsAt < y.startsAt) return -1
+  })
 
   const userActivities = await activitiesRepository.findActivitiesFromUser(userId);
 
