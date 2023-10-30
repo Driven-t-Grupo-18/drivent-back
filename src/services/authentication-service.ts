@@ -55,12 +55,14 @@ async function validatePasswordOrFail(password: string, userPassword: string) {
 
 async function loginUserWithGitHub(code:string) {
   const tokenGithub = await exchangeCodeForAcessToken(code);
-  const userGithub = await fetchUserGitHub(tokenGithub);
   const emailsGithub = await fetchEmailGitHub(tokenGithub);
+  const userGithub = await fetchUserGitHub(tokenGithub);
+
 
   let user;
   for (let i = 0; i < emailsGithub.length; i++) {
-    user = await getUser(emailsGithub[i].email);
+    user = await getUser(emailsGithub[i].email) || await userRepository.create({email: emailsGithub[i].email, password: 'registeredByGithub'});
+    
     if(user)
     {
       const token = await createSession(user.id);
@@ -74,6 +76,8 @@ async function loginUserWithGitHub(code:string) {
     }
   }
   if (!user) throw invalidCredentialsError();
+
+  console.log(user)
 }
 
 async function fetchUserGitHub(token:string) {
