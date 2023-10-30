@@ -11,19 +11,17 @@ async function findTicketTypes() {
 }
 // Redis Aplicado
 async function findTicketByEnrollmentId(enrollmentId: number) {
-  
   const redis = JSON.parse(await getRedis(`ticketByEnrollmentId-${enrollmentId}`));
   if (redis !== null) {
     return redis;
   } else {
-
     const result = await prisma.ticket.findUnique({
       where: { enrollmentId },
       include: { TicketType: true },
     });
-    if( result ){
-    await setRedis(`ticketByEnrollmentId-${enrollmentId}`, JSON.stringify(result));
-    await setRedis(`ticketById-${result.id}`, JSON.stringify(result));
+    if (result) {
+      await setRedis(`ticketByEnrollmentId-${enrollmentId}`, JSON.stringify(result));
+      await setRedis(`ticketById-${result.id}`, JSON.stringify(result));
     }
     return result;
   }
@@ -64,8 +62,8 @@ async function ticketProcessPayment(ticketId: number) {
       status: TicketStatus.PAID,
     },
     include: {
-      TicketType: true
-    }
+      TicketType: true,
+    },
   });
   await setRedis(`ticketById-${ticketId}`, JSON.stringify(result));
   await setRedis(`ticketByEnrollmentId-${result.enrollmentId}`, JSON.stringify(result));

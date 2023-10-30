@@ -148,9 +148,68 @@ async function main() {
     
   }
 
-  
+  let activityDays: any = await prisma.activityDay.findFirst();
+  if (!activityDays) {
+    activityDays = await prisma.activityDay.createMany({
+      data: [
+        { startsAt: dayjs().add(2, "days").toDate() },
+        { startsAt: dayjs().add(3, "days").toDate() },
+        { startsAt: dayjs().add(4, "days").toDate() },
+      ],
+    });
+  }
 
-  console.log({ event, hotel, roomA, roomB, ticketTypeA, ticketTypeB, ticketTypeC, userA, userB, enrollmentA, enrollmentB });
+  const activitiesList = await prisma.activity.findFirst();
+  let seedActivities: any; 
+  if (!activitiesList) {
+    activityDays = await prisma.activityDay.findMany({});
+    seedActivities = await prisma.activity.createMany(
+      {
+        data: [
+          { 
+            activityDayId: activityDays[0].id, 
+            name: "Minecraft: montando o PC ideal", 
+            location: "Auditório Principal", 
+            capacity: 27, 
+            startsAt: "09:00",
+            endsAt: "10:00",
+          },
+          { 
+            activityDayId: activityDays[0].id, 
+            name: "LoL: montando o PC ideal", 
+            location: "Auditório Principal", 
+            capacity: 0, 
+            startsAt: "10:00",
+            endsAt: "11:00",
+          },
+          { 
+            activityDayId: activityDays[0].id, 
+            name: "Palestra x", 
+            location: "Auditório Lateral", 
+            capacity: 27, 
+            startsAt: "09:00",
+            endsAt: "11:00",
+          },
+          { 
+            activityDayId: activityDays[0].id, 
+            name: "Palestra y", 
+            location: "Workshop", 
+            capacity: 27, 
+            startsAt: "09:00",
+            endsAt: "10:00",
+          },
+          { 
+            activityDayId: activityDays[0].id, 
+            name: "Palestra z", 
+            location: "Workshop", 
+            capacity: 0, 
+            startsAt: "10:00",
+            endsAt: "11:00",
+          },
+        ]
+      });
+  }
+  console.log({ event, hotel, roomA, roomB, ticketTypeA, ticketTypeB, ticketTypeC, userA, userB, enrollmentA, enrollmentB, activityDays, seedActivities });
 }
 
 

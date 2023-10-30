@@ -4,32 +4,30 @@ import { bookingRepository, enrollmentRepository, roomRepository, ticketsReposit
 import { setRedis } from '@/redisConfig';
 
 interface RoomWithBookings extends Room {
-  Booking: Booking[]
+  Booking: Booking[];
 }
 interface HotelWithRooms extends Hotel {
-  Rooms: RoomWithBookings[]
+  Rooms: RoomWithBookings[];
 }
 
-async function getAll (){
-  const hotels = await bookingRepository.getAll()
-  hotels.map((hotel: HotelWithRooms )=> {
-    delete hotel.createdAt
-    delete hotel.updatedAt
+async function getAll() {
+  const hotels = await bookingRepository.getAll();
+  hotels.map((hotel: HotelWithRooms) => {
+    delete hotel.createdAt;
+    delete hotel.updatedAt;
 
-    hotel.Rooms?.map(room => {
-      delete room.createdAt
-      delete room.updatedAt
-      room.Booking?.map(booking => {
-        delete booking.createdAt
-        delete booking.updatedAt
-        delete booking.userId
-      })
-    })
-  })
+    hotel.Rooms?.map((room) => {
+      delete room.createdAt;
+      delete room.updatedAt;
+      room.Booking?.map((booking) => {
+        delete booking.createdAt;
+        delete booking.updatedAt;
+        delete booking.userId;
+      });
+    });
+  });
 
-
-
-  return hotels
+  return hotels;
 }
 async function validateUserBooking(userId: number) {
   const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
@@ -57,7 +55,6 @@ async function getBooking(userId: number) {
   const booking = await bookingRepository.findByUserId(userId);
   if (!booking) throw notFoundError();
 
-  
   return booking;
 }
 
@@ -88,5 +85,5 @@ export const bookingService = {
   bookRoomById,
   getBooking,
   changeBookingRoomById,
-  getAll
+  getAll,
 };

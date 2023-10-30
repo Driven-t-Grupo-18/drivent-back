@@ -9,6 +9,7 @@ import qs from "query-string"
 import dotenv from "dotenv";
 dotenv.config();
 
+
 async function signIn(params: SignInParams): Promise<SignInResult> {
   const { email, password } = params;
 
@@ -17,7 +18,7 @@ async function signIn(params: SignInParams): Promise<SignInResult> {
   await validatePasswordOrFail(password, user.password);
 
   const token = await createSession(user.id);
-  delete user.password
+  delete user.password;
   await setRedis(`user-${token}`, JSON.stringify(user));
 
   return {

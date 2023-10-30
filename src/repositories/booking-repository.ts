@@ -12,7 +12,6 @@ async function create({ roomId, userId }: CreateBookingParams) {
 }
 // Redis Aplicado
 async function findByRoomId(roomId: number) {
-
   const bookings = await prisma.booking.findMany({
     where: { roomId },
     include: { Room: true },
@@ -37,14 +36,14 @@ async function findByUserId(userId: number) {
 }
 // Redis Aplicado
 async function upsertBooking({ id, roomId, userId }: UpdateBookingParams) {
-  const redisBooking = await getRedis(`bookingByUserId-${userId}`)
+  const redisBooking = await getRedis(`bookingByUserId-${userId}`);
   const booking = await prisma.booking.upsert({
     where: { id },
     create: { roomId, userId },
     update: { roomId },
   });
   if (booking) {
-    redisBooking.roomId === roomId
+    redisBooking.roomId === roomId;
     await setRedis(`bookingByUserId-${userId}`, JSON.stringify(redisBooking));
   }
   return booking;
