@@ -142,6 +142,7 @@ model Activity {
   capacity             Int
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
+  occupied             Int                    @default(0)
   ActivityDay          ActivityDay            @relation(fields: [activityDayId], references: [id])
   ActivityRegistration ActivityRegistration[]
 }
