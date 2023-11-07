@@ -43,21 +43,23 @@ async function findActivityById(activityId: number) {
   });
 }
 
-async function recordUserActivity(activityId: number, activityDayId: number, userId: number) {
-  return await prisma.activityRegistration.create({
-    data: {
-      activityId,
-      activityDayId,
-      userId,
-    },
-  });
-}
 
-async function updateActivityCapacity(activity: Activity) {
-  return await prisma.activity.update({
-    data: { capacity: activity.capacity - 1 },
-    where: { id: activity.id },
-  });
+async function recordUserActivity(capacity: number, activityId: number, activityDayId: number, userId: number) {
+  const result = await prisma.$transaction([
+    prisma.activityRegistration.create({
+      data: {
+        activityId,
+        activityDayId,
+        userId,
+      }
+    }),
+    prisma.activity.update({
+      data: { capacity: capacity - 1 },
+      where: { id: activityId },
+    })
+  ])
+  console.log(result)
+  return result
 }
 
 async function getReservationsByDay(activityDayId: number){
@@ -75,6 +77,5 @@ export const activitiesRepository = {
   findActivityDayById,
   findActivityById,
   recordUserActivity,
-  updateActivityCapacity,
   getReservationsByDay
 };
