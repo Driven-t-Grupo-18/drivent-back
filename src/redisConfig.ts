@@ -1,7 +1,7 @@
 import { promisify } from 'util';
 import { Redis } from 'ioredis';
 
-const redisClient = new Redis();
+const redisClient = new Redis(process.env.REDIS_URL);
 
 function getRedis(value: string) {
   const syncRedisGet = promisify(redisClient.get).bind(redisClient);
