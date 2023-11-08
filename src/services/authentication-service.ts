@@ -55,9 +55,13 @@ async function validatePasswordOrFail(password: string, userPassword: string) {
 }
 
 async function loginUserWithGitHub(code:string) {
+  console.log(code);
   const tokenGithub = await exchangeCodeForAcessToken(code);
+  console.log(tokenGithub);
   const emailsGithub = await fetchEmailGitHub(tokenGithub);
+  console.log(emailsGithub);
   const userGithub = await fetchUserGitHub(tokenGithub);
+  console.log(userGithub);
 
 
   let user;
